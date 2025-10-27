@@ -37,27 +37,11 @@ def main(page: ft.Page):
 
     # Tutti i TextField per le info necessarie per aggiungere una nuova automobile (marca, modello, anno, contatore posti)
     # TODO
-    def handleAdd(e):
-        currentVal = int(txtOut.value)
-        txtOut.value = currentVal + 1
-        txtOut.update()
-
-    def handleRemove(e):
-        currentVal = txtOut.value
-        txtOut.value = currentVal - 1
-        txtOut.update()
 
     marca = ft.TextField(label="Marca")
     modello = ft.TextField(label="Modello")
     anno = ft.TextField(label="Anno")
-    btnMinus = ft.IconButton(icon=ft.Icons.REMOVE, icon_color="red",
-                             icon_size=24, on_click=handleRemove)
-
-    btnAdd = ft.IconButton(icon=ft.Icons.ADD,
-                           icon_color="green",
-                           icon_size=24, on_click=handleAdd)
-
-    txtOut = ft.TextField(width=100, disabled=True, value=0, border_color="green",
+    contatore = ft.TextField(width=100, disabled=True, value="0", border_color="green",
                           text_align=ft.TextAlign.CENTER)
 
 
@@ -82,31 +66,65 @@ def main(page: ft.Page):
 
     # Handlers per la gestione dei bottoni utili all'inserimento di una nuova auto
     # TODO
+    def handleAdd(e):
+        try:
+            currentVal = int(contatore.value)
+        except Exception:
+            currentVal = 0
+        currentVal += 1
+        contatore.value = str(currentVal)
+        contatore.update()
+
+    def handleRemove(e):
+        try:
+            currentVal = int(contatore.value)
+        except Exception:
+            currentVal = 0
+        if currentVal > 0:
+            currentVal -= 1
+        contatore.value = str(currentVal)
+        contatore.update()
+
+
     def btNPresserHandler(e):
-        if marca.value == '' or modello.value == '' or anno.value == '' or txtOut.value <= 0:
+        if marca.value.strip() == '' or modello.value.strip() == '' or anno.value.strip() == '' or contatore.value.strip() == '':
             alert.show_alert('❌ I Campi non possono essere vuoti')
             return
 
         try:
-            int(anno.value)
+            anno_int = int(anno.value)
         except ValueError:
-            alert.show_alert('❌ Nel campo ci deve essere un valore numerico intero')
-
+            alert.show_alert("❌ Nel campo 'Anno' ci deve essere un valore numerico intero")
             return
 
-        autonoleggio.aggiungi_automobile(marca.value,modello.value, anno.value , txtOut.value)
+        try:
+            posti = int(contatore.value)
+        except ValueError:
+            alert.show_alert('❌ Valore non valido per il numero di posti')
+            return
+
+        if posti <= 0:
+            alert.show_alert('❌ Il numero di posti deve essere maggiore di zero')
+            return
+
+        try:
+            autonoleggio.aggiungi_automobile(marca.value.strip(),modello.value.strip(), anno_int, posti)
+        except Exception as exc:
+            alert.show_alert(f"❌ Errore durante l'aggiunta: {exc}")
+            return
+
         aggiorna_lista_auto()
-        print('Automobile aggiunta!')
+        alert.show_alert('✅ Automobile aggiunta correttamente!')
 
         marca.value = ""
         modello.value = ""
         anno.value = ""
-        txtOut.value = 0
+        contatore.value = "0"
 
         marca.update()
         modello.update()
         anno.update()
-        txtOut.update()
+        contatore.update()
 
 
     # --- EVENTI ---
@@ -115,7 +133,14 @@ def main(page: ft.Page):
 
     # Bottoni per la gestione dell'inserimento di una nuova auto
     # TODO
-    btnPress = ft.ElevatedButton(text='Aggiungi Automobile',on_click=btNPresserHandler)
+    btnPress = ft.ElevatedButton(text='Aggiungi Automobile',on_click=btNPresserHandler)     #bottone aggiungi automobile
+
+    btnMinus = ft.IconButton(icon=ft.Icons.REMOVE, icon_color="red",        #bottone per diminuire il numero dei posti
+                             icon_size=24, on_click=handleRemove)
+
+    btnAdd = ft.IconButton(icon=ft.Icons.ADD,
+                           icon_color="green",
+                           icon_size=24, on_click=handleAdd)            #bottone per aumentare il numero dei posti
 
     # --- LAYOUT ---
     page.add(
@@ -135,9 +160,9 @@ def main(page: ft.Page):
         # Sezione 3
         # TODO
         ft.Divider(),
-        ft.Text(value='Aggiungi Automobile',
+        ft.Text(value='Aggiungi nuova Automobile',
                               size=20),
-        ft.Row([marca, modello, anno, btnMinus, txtOut, btnAdd], alignment=ft.MainAxisAlignment.CENTER),
+        ft.Row([marca, modello, anno, btnMinus, contatore, btnAdd], alignment=ft.MainAxisAlignment.CENTER),
         ft.Row([btnPress], alignment=ft.MainAxisAlignment.CENTER),
 
         # Sezione 4
