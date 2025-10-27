@@ -113,9 +113,6 @@ def main(page: ft.Page):
             alert.show_alert(f"❌ Errore durante l'aggiunta: {exc}")
             return
 
-        aggiorna_lista_auto()
-        alert.show_alert('✅ Automobile aggiunta correttamente!')
-
         marca.value = ""
         modello.value = ""
         anno.value = ""
@@ -126,6 +123,8 @@ def main(page: ft.Page):
         anno.update()
         contatore.update()
 
+        aggiorna_lista_auto()
+        alert.show_alert('✅ Automobile aggiunta correttamente!')
 
     # --- EVENTI ---
     toggle_cambia_tema = ft.Switch(label="Tema scuro", value=True, on_change=cambia_tema)
